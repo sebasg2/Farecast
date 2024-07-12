@@ -1,12 +1,12 @@
 # %%
+import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from datetime import datetime
+from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-from sklearn.metrics import mean_absolute_error
-import matplotlib.pyplot as plt
+from sklearn.pipeline import Pipeline
 import joblib
-import tensorflow as tf
 
 modelo = joblib.load('final_model.pkl')
 
@@ -490,17 +490,9 @@ columns_with_dummies = [
 # INCLUIR MES Y DIA
 
 # %%
-import streamlit as st
-import pandas as pd
-import numpy as np
-from datetime import datetime
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline
-import joblib
 
-# Load your pre-trained model and expected columns
-modelo = joblib.load("final_model.pkl")  # Replace with your actual model path
+
+
 
 
 
@@ -567,29 +559,77 @@ def predecir(Hour_of_Departure, airline, Stops, Origin_Country, Destination_Coun
     # Determine if it's an extra long flight
     input_df['Extra_Long_Flight'] = (input_df['Duration'] > 40).astype(float)  # Example threshold for extra long flight
 
+    input_df = input_df[[
+        'Duration', 'Number of Stops', 'Distance (km)', 'Hour_of_Departure', 'Is_Direct_Flight',
+        'Month', 'Day', 'Airline Code_2J', 'Airline Code_3K', 'Airline Code_3M', 'Airline Code_3U', 
+        'Airline Code_4Y', 'Airline Code_4Z', 'Airline Code_5F', 'Airline Code_5U', 'Airline Code_5Z',
+        'Airline Code_6H', 'Airline Code_6X', 'Airline Code_7C', 'Airline Code_8M', 'Airline Code_A1',
+        'Airline Code_A3', 'Airline Code_AC', 'Airline Code_AD', 'Airline Code_AF', 'Airline Code_AH',
+        'Airline Code_AI', 'Airline Code_AR', 'Airline Code_AS', 'Airline Code_AT', 'Airline Code_AV',
+        'Airline Code_AY', 'Airline Code_AZ', 'Airline Code_B6', 'Airline Code_BG', 'Airline Code_BI',
+        'Airline Code_BJ', 'Airline Code_BP', 'Airline Code_BR', 'Airline Code_BT', 'Airline Code_BW',
+        'Airline Code_CA', 'Airline Code_CI', 'Airline Code_CM', 'Airline Code_CU', 'Airline Code_CX',
+        'Airline Code_CZ', 'Airline Code_D8', 'Airline Code_DE', 'Airline Code_DO', 'Airline Code_DT',
+        'Airline Code_DY', 'Airline Code_EI', 'Airline Code_EK', 'Airline Code_EN', 'Airline Code_ET',
+        'Airline Code_EW', 'Airline Code_EY', 'Airline Code_FA', 'Airline Code_FB', 'Airline Code_FI',
+        'Airline Code_FJ', 'Airline Code_FM', 'Airline Code_FN', 'Airline Code_FZ', 'Airline Code_G3',
+        'Airline Code_GA', 'Airline Code_GF', 'Airline Code_GK', 'Airline Code_H1', 'Airline Code_HA',
+        'Airline Code_HC', 'Airline Code_HF', 'Airline Code_HM', 'Airline Code_HO', 'Airline Code_HU',
+        'Airline Code_HX', 'Airline Code_HY', 'Airline Code_IB', 'Airline Code_ID', 'Airline Code_IE',
+        'Airline Code_J2', 'Airline Code_JD', 'Airline Code_JL', 'Airline Code_JQ', 'Airline Code_JU',
+        'Airline Code_JY', 'Airline Code_K6', 'Airline Code_KC', 'Airline Code_KE', 'Airline Code_KL',
+        'Airline Code_KM', 'Airline Code_KP', 'Airline Code_KQ', 'Airline Code_KR', 'Airline Code_KU',
+        'Airline Code_L6', 'Airline Code_LA', 'Airline Code_LG', 'Airline Code_LH', 'Airline Code_LO',
+        'Airline Code_LX', 'Airline Code_LY', 'Airline Code_ME', 'Airline Code_MF', 'Airline Code_MH',
+        'Airline Code_MK', 'Airline Code_MS', 'Airline Code_MU', 'Airline Code_NF', 'Airline Code_NH',
+        'Airline Code_NK', 'Airline Code_NZ', 'Airline Code_OB', 'Airline Code_OD', 'Airline Code_OK',
+        'Airline Code_OM', 'Airline Code_OR', 'Airline Code_OS', 'Airline Code_OU', 'Airline Code_OZ',
+        'Airline Code_P0', 'Airline Code_P4', 'Airline Code_PC', 'Airline Code_PG', 'Airline Code_PK',
+        'Airline Code_PR', 'Airline Code_PU', 'Airline Code_PW', 'Airline Code_PX', 'Airline Code_PY',
+        'Airline Code_QF', 'Airline Code_QR', 'Airline Code_QS', 'Airline Code_QV', 'Airline Code_RJ',
+        'Airline Code_RN', 'Airline Code_RO', 'Airline Code_RQ', 'Airline Code_SA', 'Airline Code_SB',
+        'Airline Code_SC', 'Airline Code_SG', 'Airline Code_SK', 'Airline Code_SL', 'Airline Code_SN',
+        'Airline Code_SQ', 'Airline Code_SS', 'Airline Code_SV', 'Airline Code_TC', 'Airline Code_TG',
+        'Airline Code_TK', 'Airline Code_TM', 'Airline Code_TP', 'Airline Code_TR', 'Airline Code_TU',
+        'Airline Code_UA', 'Airline Code_UB', 'Airline Code_UK', 'Airline Code_UL', 'Airline Code_UP',
+        'Airline Code_UR', 'Airline Code_UU', 'Airline Code_UX', 'Airline Code_VA', 'Airline Code_VB',
+        'Airline Code_VF', 'Airline Code_VN', 'Airline Code_VS', 'Airline Code_VY', 'Airline Code_W2',
+        'Airline Code_W3', 'Airline Code_WB', 'Airline Code_WF', 'Airline Code_WM', 'Airline Code_WS',
+        'Airline Code_WY', 'Airline Code_X1', 'Airline Code_XY', 'Airline Code_ZB', 'Airline Code_ZH',
+        'Airline Code_ZL', 'Airline Code_ZP', 'Origin Continent_Africa', 'Origin Continent_Asia',
+        'Origin Continent_Europe', 'Origin Continent_North America', 'Origin Continent_Oceania',
+        'Origin Continent_South America', 'Destination Continent_Africa', 'Destination Continent_Asia',
+        'Destination Continent_Europe', 'Destination Continent_North America', 'Destination Continent_Oceania',
+        'Destination Continent_South America', 'Flight_Distance_Category_Long Haul',
+        'Flight_Distance_Category_Medium Haul', 'Flight_Distance_Category_Short Haul',
+        'Flight_Duration_Category_Long', 'Flight_Duration_Category_Medium', 'Flight_Duration_Category_Short',
+        'Days_Until_Flight', 'Extra_Long_Flight'
+    ]]
+
     input_df = input_df.select_dtypes(include=[int, float])
     y_pred = modelo.predict(input_df)
 
     return y_pred
 
 # Streamlit app
-st.title("Flight Price Predictor")
+st.title("Prediccion de precio de vuelos")
 
 # Input fields
-Hour_of_Departure = st.number_input("Hour of Departure", min_value=0, max_value=23, value=14)
-airline = st.text_input("Airline Code", value='UX')
-Stops = st.number_input("Number of Stops", min_value=0, max_value=5, value=2)
-Origin_Country = st.text_input("Origin Country", value='Japan')
-Destination_Country = st.text_input("Destination Country", value='Congo')
-day = st.number_input("Day of Departure", min_value=1, max_value=31, value=9)
-month = st.number_input("Month of Departure", min_value=1, max_value=12, value=8)
-year = st.number_input("Year of Departure", min_value=2023, max_value=2100, value=2025)
+Hour_of_Departure = st.number_input("Hora", min_value=0, max_value=23, value=14)
+airline = st.text_input("Codigo de aerolinea", value='UX')
+Stops = st.number_input("Numero de Paradas", min_value=0, max_value=5, value=2)
+Origin_Country = st.text_input("Pais de origen", value='Japan')
+Destination_Country = st.text_input("Pais de destino", value='Congo')
+day = st.number_input("Dia de salida", min_value=1, max_value=31, value=9)
+month = st.number_input("Mes de salida", min_value=1, max_value=12, value=8)
+year = st.number_input("Año de salida", min_value=2023, max_value=2100, value=2025)
+
+
 
 # Predict button
-if st.button("Predict Price"):
+if st.button("Obten tu prediccion"):
     predicted_price = predecir(Hour_of_Departure, airline, Stops, Origin_Country, Destination_Country, day, month, year)
-    st.write(f"The predicted flight price is: ${predicted_price[0]:.2f}")
-
+    st.write(f"El precio probable es de : ${predicted_price[0]:.2f}")
 
 
 
